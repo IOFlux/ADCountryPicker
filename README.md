@@ -23,7 +23,7 @@ ADCountryPicker is available through [CocoaPods](http://cocoapods.org), to insta
 Swift 4 >:
 
     use_frameworks!
-     pod 'ADCountryPicker', '~> 2.1.0'
+     pod 'ADCountryPicker', '~> 2.1.1'
     
 Swift 3:
 
