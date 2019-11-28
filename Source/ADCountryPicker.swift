@@ -34,7 +34,7 @@ open class ADCountryPicker: UITableViewController {
         guard let path = resourceBundle.path(forResource: "CallingCodes", ofType: "plist") else { return [] }
         return NSArray(contentsOfFile: path) as! [[String: String]]
     }()
-    fileprivate var searchController: UISearchController!
+    var searchController: UISearchController!
     fileprivate var filteredList = [ADCountry]()
     fileprivate var unsortedCountries : [ADCountry] {
         let locale = Locale.current
