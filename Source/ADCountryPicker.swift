@@ -279,7 +279,7 @@ open class ADCountryPicker: UITableViewController {
     public func getDialCode(countryCode: String) -> String? {
         let countries = self.getCountry(countryCode)
         
-        if countries.count == 1 {
+        if countries.count >= 1 {
             return countries.first?.dialCode
         }
         else {
@@ -294,7 +294,7 @@ open class ADCountryPicker: UITableViewController {
     public func getCountryName(countryCode: String) -> String? {
         let countries = self.getCountry(countryCode)
         
-        if countries.count == 1 {
+        if countries.count >= 1 {
             return countries.first?.name
         }
         else {
