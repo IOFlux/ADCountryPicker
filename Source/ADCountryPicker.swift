@@ -39,7 +39,8 @@ open class ADCountryPicker: UITableViewController {
     fileprivate var unsortedCountries : [ADCountry] {
         let locale = Locale.current
         var unsortedCountries = [ADCountry]()
-        let countriesCodes = customCountriesCode == nil ? Locale.isoRegionCodes : customCountriesCode!
+        let allCountryCodes = customCountriesCode == nil ? Locale.isoRegionCodes : customCountriesCode!
+        let countriesCodes = self.countryCodes ?? allCountryCodes
         
         for countryCode in countriesCodes {
             let displayName = (locale as NSLocale).displayName(forKey: NSLocale.Key.countryCode, value: countryCode)
@@ -88,26 +89,28 @@ open class ADCountryPicker: UITableViewController {
             s.countries = collation.sortedArray(from: section.countries, collationStringSelector: #selector(getter: ADCountry.name)) as! [ADCountry]
         }
         
-        // Adds current location
-        var countryCode = (Locale.current as NSLocale).object(forKey: .countryCode) as? String ?? self.defaultCountryCode
-        if self.forceDefaultCountryCode {
-            countryCode = self.defaultCountryCode
+        if self.countryCodes == nil {
+            
+            // Adds current location
+            var countryCode = (Locale.current as NSLocale).object(forKey: .countryCode) as? String ?? self.defaultCountryCode
+            if self.forceDefaultCountryCode {
+                countryCode = self.defaultCountryCode
+            }
+        
+            sections.insert(Section(), at: 0)
+            let locale = Locale.current
+            let displayName = (locale as NSLocale).displayName(forKey: NSLocale.Key.countryCode, value: countryCode)
+            let countryData = CallingCodes.filter { $0["code"] == countryCode }
+            let country: ADCountry
+        
+            if countryData.count > 0, let dialCode = countryData[0]["dial_code"] {
+                country = ADCountry(name: displayName!, code: countryCode, dialCode: dialCode)
+            } else {
+                country = ADCountry(name: displayName!, code: countryCode)
+            }
+            country.section = 0
+            sections[0].addCountry(country)
         }
-        
-        sections.insert(Section(), at: 0)
-        let locale = Locale.current
-        let displayName = (locale as NSLocale).displayName(forKey: NSLocale.Key.countryCode, value: countryCode)
-        let countryData = CallingCodes.filter { $0["code"] == countryCode }
-        let country: ADCountry
-        
-        if countryData.count > 0, let dialCode = countryData[0]["dial_code"] {
-            country = ADCountry(name: displayName!, code: countryCode, dialCode: dialCode)
-        } else {
-            country = ADCountry(name: displayName!, code: countryCode)
-        }
-        country.section = 0
-        sections[0].addCountry(country)
-        
         
         _sections = sections
         
@@ -117,6 +120,8 @@ open class ADCountryPicker: UITableViewController {
     fileprivate let collation = UILocalizedIndexedCollation.current()
         as UILocalizedIndexedCollation
     open weak var delegate: ADCountryPickerDelegate?
+    
+    open var countryCodes: [String]? = nil
     
     /// Closure which returns country name and ISO code
     open var didSelectCountryClosure: ((String, String) -> ())?
@@ -163,6 +168,35 @@ open class ADCountryPicker: UITableViewController {
     convenience public init(completionHandler: @escaping ((String, String) -> ())) {
         self.init()
         self.didSelectCountryClosure = completionHandler
+    }
+    
+    convenience public init(completionHandler: @escaping ((String, String) -> ()), countryCodes: [String]? = nil, style: UITableView.Style? = nil) {
+        
+        if let style = style {
+            
+            self.init(style: style)
+            
+        } else {
+            
+            self.init()
+        }
+        
+        self.countryCodes = countryCodes
+        self.didSelectCountryClosure = completionHandler
+    }
+    
+    convenience public init(countryCodes: [String]?, style: UITableView.Style? = nil) {
+        
+        if let style = style {
+            
+            self.init(style: style)
+            
+        } else {
+            
+            self.init()
+        }
+        
+        self.countryCodes = countryCodes
     }
     
     override open func viewDidLoad() {
